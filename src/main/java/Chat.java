@@ -1,17 +1,21 @@
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.jetty.websocket.api.Session;
 import org.json.JSONObject;
 
+import spark.ModelAndView;
+import spark.Request;
+import spark.Response;
+import spark.Spark;
+import spark.TemplateViewRoute;
+import spark.template.freemarker.FreeMarkerEngine;
+
 import static j2html.TagCreator.*;
-import static spark.Spark.*;
 
 public class Chat {
 
@@ -26,12 +30,24 @@ public class Chat {
     static Map<Session, UserInfo> users = new ConcurrentHashMap<>();
 
     public static void main(String[] args) {
-        staticFiles.location("/public"); //index.html is served at localhost:4567 (default port)
-        staticFiles.expireTime(600);
-        webSocket("/chat", ChatWebSocketHandler.class);
+        //staticFiles.location("/public"); //index.html is served at localhost:4567 (default port)
+        //staticFiles.expireTime(600);
+        
         System.out.println("hari2");
-        init();
+        //init();
+        runSparkServer(4567);
     }
+    
+    private static void runSparkServer(int port) {
+        Spark.port(port);
+        Spark.externalStaticFileLocation("src/main/resources/public");
+        
+        FreeMarkerEngine engine = new FreeMarkerEngine();
+        Spark.webSocket("/chat", ChatWebSocketHandler.class);
+        Spark.get("/", null, engine);
+        Spark.init();
+      }
+    
 
     //Sends a message from one user to all users, along with a list of current usernames
     public static void broadcastMessage(String sender, String message, int room) {
@@ -77,6 +93,17 @@ public class Chat {
             span(attrs(".timestamp"), new SimpleDateFormat("HH:mm:ss").format(new Date())),
             p(message)
         ).render();
+    }
+    
+    
+    public class HomePage implements TemplateViewRoute {
+
+		@Override
+		public ModelAndView handle(Request request, Response response) throws Exception {
+			// TODO Auto-generated method stub
+			return new ModelAndView(null, "websocket.ftl");
+		}
+    	
     }
     
 
