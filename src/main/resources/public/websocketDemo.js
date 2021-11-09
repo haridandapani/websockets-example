@@ -1,11 +1,11 @@
 //Establish the WebSocket connection and set up event handlers
-let room = getRandomInt(0, 3);
-let wsurl = "ws://" + location.hostname + ":" + location.port + "/chat?room=" + room
-var webSocket = new WebSocket(wsurl);
+//let room = getRandomInt(0, 3);
+//let username = "hari2";
+let wsurl = null;
+let webSocket = null;
 console.log(wsurl);
 console.log("hari4");
-webSocket.onmessage = function (msg) { updateChat(msg); };
-webSocket.onclose = function () { alert("WebSocket connection closed") };
+
 
 //Send message if "Send" is clicked
 id("send").addEventListener("click", function () {
@@ -49,4 +49,19 @@ function getRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
+}
+
+function logger(e){
+    e.preventDefault();
+    id("form").hidden = true;
+    id("chatter").hidden = false;
+    console.log("submitted");
+    let room = id("room").value;
+    let username = id("username").value;
+
+    wsurl = "ws://" + location.hostname + ":" + location.port + "/chat?username=" + username + "&" + "room=" + room;
+    console.log(wsurl);
+    webSocket = new WebSocket(wsurl);
+    webSocket.onmessage = function (msg) { updateChat(msg); };
+    webSocket.onclose = function () { alert("WebSocket connection closed") };
 }

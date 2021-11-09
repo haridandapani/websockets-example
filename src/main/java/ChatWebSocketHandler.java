@@ -12,15 +12,16 @@ public class ChatWebSocketHandler {
     	System.out.println("aaaaaaaaaaah");
     	System.out.println(user.getRemoteAddress());
     	String urlString = user.getUpgradeRequest().getRequestURI().toString();
+    	
     	System.out.println(urlString);
+    	String query = urlString.split("\\?")[1];
+    	
     	int room = Integer.valueOf(urlString.split("room=")[1]);
 
     	System.out.println(room);
         String username = "User" + Chat.nextUserNumber++;
-    	// Chat.rooms.put(username, room);
-        // Chat.userUsernameMap.put(user, username);
+        username = urlString.split("username=")[1].split("&room=")[0];
         
-        // Chat.sessionMap.put(username, user);
         UserInfo thisUser = new UserInfo(user, room, username);
         Chat.users.put(user, thisUser);
         
@@ -31,7 +32,6 @@ public class ChatWebSocketHandler {
     public void onClose(Session user, int statusCode, String reason) {
         String username = Chat.users.get(user).getUserName();
         int room = Chat.users.get(user).getRoom();
-        // Chat.userUsernameMap.remove(user);
         Chat.users.remove(user);
         Chat.broadcastMessage(sender = "Server", msg = (username + " left the chat"), room);
     }
